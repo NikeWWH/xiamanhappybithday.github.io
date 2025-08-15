@@ -1,0 +1,630 @@
+<html lang="zh-CN"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>夏满，生日快乐！</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 配置Tailwind自定义颜色和字体 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF6B8B',
+                        secondary: '#8A9FD1',
+                        accent: '#FFD700',
+                    },
+                    fontFamily: {
+                        kai: ['"KaiTi"', '"STKaiti"', 'cursive', 'sans-serif'],
+                        english: ['"Dancing Script"', 'cursive', 'sans-serif'],
+                        french: ['"Parisienne"', 'cursive', 'sans-serif'],
+                        spanish: ['"La Belle Aurore"', 'cursive', 'sans-serif'],
+                        russian: ['"Marck Script"', 'cursive', 'sans-serif'],
+                        arabic: ['"Amiri"', 'cursive', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <!-- 引入字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Dancing+Script:wght@600&family=Parisienne&family=La+Belle+Aurore&family=Marck+Script&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 0 0 10px rgba(255, 215, 0, 0.8),
+                             0 0 20px rgba(255, 107, 139, 0.6),
+                             0 0 30px rgba(138, 159, 209, 0.4);
+            }
+            .text-glow {
+                animation: glow 2s ease-in-out infinite alternate;
+            }
+            .fade-in {
+                animation: fadeIn 1.5s ease-out forwards;
+            }
+            .star-twinkle {
+                animation: twinkle 2s ease-in-out infinite alternate;
+            }
+            .page {
+                display: none;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
+            .page.active {
+                display: flex;
+            }
+            .nav-dot {
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                background-color: rgba(255, 255, 255, 0.3);
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+            .nav-dot.active {
+                background-color: #FFD700;
+                transform: scale(1.3);
+            }
+            .line-hidden {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+        }
+        
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px rgba(255, 215, 0, 0.8),
+                             0 0 20px rgba(255, 107, 139, 0.6),
+                             0 0 30px rgba(138, 159, 209, 0.4);
+            }
+            to {
+                text-shadow: 0 0 15px rgba(255, 215, 0, 1),
+                             0 0 30px rgba(255, 107, 139, 0.8),
+                             0 0 45px rgba(138, 159, 209, 0.6);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(10px);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes twinkle {
+            from { opacity: 0.3; }
+            to { opacity: 1; }
+        }
+        
+        .language-label {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 30;
+        }
+        
+        .nav-arrows {
+            position: fixed;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+            z-index: 30;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+        
+        .nav-arrow {
+            color: white;
+            opacity: 0.7;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+        
+        .nav-arrow:hover {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+        
+        [lang="ar"] {
+            direction: rtl;
+        }
+    </style>
+</head>
+<body class="overflow-hidden h-screen m-0 p-0 bg-slate-900">
+    <!-- 星空和烟花背景画�? -->
+    <canvas id="backgroundCanvas" class="fixed top-0 left-0 w-full h-full z-0"></canvas>
+
+    
+    <!-- 页面导航 -->
+    <div class="navigation">
+        <div class="nav-dot active" data-page="0"></div>
+        <div class="nav-dot" data-page="1"></div>
+        <div class="nav-dot" data-page="2"></div>
+        <div class="nav-dot" data-page="3"></div>
+        <div class="nav-dot" data-page="4"></div>
+        <div class="nav-dot" data-page="5"></div>
+    </div>
+    
+    <div class="nav-arrows">
+        <div class="nav-arrow left-arrow">
+            <i class="fa fa-chevron-left"></i>
+        </div>
+        <div class="nav-arrow right-arrow">
+            <i class="fa fa-chevron-right"></i>
+        </div>
+    </div>
+    
+    <!-- 中文页面 -->
+<!-- 中文页面 -->
+<div class="page active flex flex-col justify-center items-center text-center p-4 z-10">
+    <div class="language-label">中文</div>
+    <h1 class="text-[clamp(2.5rem,8vw,5rem)] font-kai font-bold text-white text-shadow text-glow mb-8 line-hidden">
+        夏满，生日快乐！
+    </h1>
+    
+    <div class="text-[clamp(1.2rem,4vw,1.8rem)] font-kai text-white text-shadow max-w-3xl leading-relaxed space-y-6">
+        <p class="line-hidden">愿你追逐梦想的步伐，永远坚定而充满力量</p>
+        <p class="line-hidden">你心中的那份热忱和坚持，终将带你抵达想去的地方</p>
+        <p class="line-hidden">愿你在探索未知、贡献才华的路上，既能披荆斩棘，也能被温柔以待</p>
+        <p class="line-hidden">你值得拥有所有的美好与幸运</p>
+        <p class="line-hidden">愿你的每一天，都离你心中的理想国更近一步</p>
+        <p class="line-hidden">你的努力和情怀，终将在这个世界上留下属于你独特而闪亮的印记</p>
+        <p class="line-hidden">最重要的，愿你在繁忙之余，也记得好好照顾自己，偶尔停下来感受生活的微风与暖阳</p>
+        <p class="line-hidden">身体是革命的本钱，快乐是前行的动力。生日快乐哦</p>
+    </div>
+    
+    <button id="musicControl" class="mt-10 bg-primary/80 hover:bg-primary text-white rounded-full p-4 transition-all duration-300 transform hover:scale-110 shadow-lg">
+        <i class="fa fa-music text-2xl"></i>
+    </button>
+</div>
+
+<!-- 英语页面 -->
+<div class="page flex flex-col justify-center items-center text-center p-4 z-10">
+    <div class="language-label">English</div>
+    <h1 class="text-[clamp(2.5rem,8vw,5rem)] font-english font-bold text-white text-shadow text-glow mb-8 line-hidden">
+        Happy Birthday, Xiaman!
+    </h1>
+    
+    <div class="text-[clamp(1.2rem,4vw,1.8rem)] font-english text-white text-shadow max-w-3xl leading-relaxed space-y-6">
+        <p class="line-hidden">May your steps in chasing your dreams always be firm and full of strength.</p>
+        <p class="line-hidden">The passion and persistence in your heart will eventually lead you to where you want to go.</p>
+        <p class="line-hidden">May you, on your journey of exploring the unknown and contributing your talents, be able to overcome obstacles and be treated with tenderness.</p>
+        <p class="line-hidden">You deserve all the beauty and luck in the world.</p>
+        <p class="line-hidden">May each day bring you closer to the ideal country in your heart.</p>
+        <p class="line-hidden">Your efforts and feelings will eventually leave a unique and shining mark in this world.</p>
+        <p class="line-hidden">Most importantly, amid your busyness, remember to take good care of yourself and occasionally pause to feel the gentle breeze and warm sun of life.</p>
+        <p class="line-hidden">Health is the foundation of all endeavors, and happiness is the motivation to move forward. Happy birthday!</p>
+    </div>
+</div>
+
+<!-- 法语页面 -->
+<div class="page flex flex-col justify-center items-center text-center p-4 z-10">
+    <div class="language-label">Français</div>
+    <h1 class="text-[clamp(2.5rem,8vw,5rem)] font-french font-bold text-white text-shadow text-glow mb-8 line-hidden">
+        Joyeux anniversaire, Xiaman!
+    </h1>
+    
+    <div class="text-[clamp(1.2rem,4vw,1.8rem)] font-french text-white text-shadow max-w-3xl leading-relaxed space-y-6">
+        <p class="line-hidden">Que tes pas dans la poursuite de tes rêves soient toujours fermes et pleins de force.</p>
+        <p class="line-hidden">La passion et la persévérance qui résident en toi t'amèneront finalement où tu veux aller.</p>
+        <p class="line-hidden">Que, dans ton exploration de l'inconnu et dans la contribution de tes talents, tu puisses surmonter les obstacles et être traité avec tendresse.</p>
+        <p class="line-hidden">Tu mérites toutes les beautés et toutes les chances du monde.</p>
+        <p class="line-hidden">Que chaque jour te rapproche un peu plus du pays idéal qui réside dans ton cœur.</p>
+        <p class="line-hidden">Tes efforts et tes sentiments laisseront finalement une marque unique et brillante dans ce monde.</p>
+        <p class="line-hidden">Plus important encore, dans ton activité, n'oublie pas de prendre soin de toi et de faire une pause de temps en temps pour sentir la brise douce et le soleil chaud de la vie.</p>
+        <p class="line-hidden">La santé est la base de toutes les entreprises, et le bonheur est la motivation pour avancer. Joyeux anniversaire !</p>
+    </div>
+</div>
+
+<!-- 西班牙语页面 -->
+<div class="page flex flex-col justify-center items-center text-center p-4 z-10">
+    <div class="language-label">Español</div>
+    <h1 class="text-[clamp(2.5rem,8vw,5rem)] font-spanish font-bold text-white text-shadow text-glow mb-8 line-hidden">
+        ¡Feliz cumpleaños, Xiaman!
+    </h1>
+    
+    <div class="text-[clamp(1.2rem,4vw,1.8rem)] font-spanish text-white text-shadow max-w-3xl leading-relaxed space-y-6">
+        <p class="line-hidden">Que tus pasos en la búsqueda de tus sueños sean siempre firmes y llenos de fuerza.</p>
+        <p class="line-hidden">El entusiasmo y la perseverancia que hay en tu corazón finalmente te llevarán a donde quieres ir.</p>
+        <p class="line-hidden">Que en tu camino de explorar lo desconocido y contribuir con tus talentos, puedas superar obstáculos y ser tratado con ternura.</p>
+        <p class="line-hidden">Te mereces toda la belleza y la suerte del mundo.</p>
+        <p class="line-hidden">Que cada día te acerque más al país ideal que hay en tu corazón.</p>
+        <p class="line-hidden">Tus esfuerzos y sentimientos finalmente dejarán una marca única y brillante en este mundo.</p>
+        <p class="line-hidden">Lo más importante, en medio de tu ocupación, recuerda cuidarte bien y ocasionalmente hacer una pausa para sentir la brisa suave y el sol cálido de la vida.</p>
+        <p class="line-hidden">La salud es la base de todos los empeños, y la felicidad es la motivación para avanzar. ¡Feliz cumpleaños!</p>
+    </div>
+</div>
+
+<!-- 俄语页面 -->
+<div class="page flex flex-col justify-center items-center text-center p-4 z-10">
+    <div class="language-label">Русский</div>
+    <h1 class="text-[clamp(2.5rem,8vw,5rem)] font-russian font-bold text-white text-shadow text-glow mb-8 line-hidden">
+        С днем рождения, Сямань!
+    </h1>
+    
+    <div class="text-[clamp(1.2rem,4vw,1.8rem)] font-russian text-white text-shadow max-w-3xl leading-relaxed space-y-6">
+        <p class="line-hidden">Май твои шаги в погоне за мечтами всегда оставаться твердыми и полными силы.</p>
+        <p class="line-hidden">Пыл и упорство в твоем сердце в конечном итоге приведут тебя туда, куда ты хочешь пойти.</p>
+        <p class="line-hidden">Май на твоем пути исследования неизвестного и проявления талантов ты сможешь преодолевать преграды и быть окруженным нежностью.</p>
+        <p class="line-hidden">Ты заслуживаешь всей красоты и удачи в мире.</p>
+        <p class="line-hidden">Май каждый день приближает тебя к идеальной стране в твоем сердце.</p>
+        <p class="line-hidden">Твои усилия и чувства в конечном итоге оставят уникальную и яркую отметку в этом мире.</p>
+        <p class="line-hidden">Самое главное, среди хлопот не забывай позаботиться о себе и иногда остановиться, чтобы почувствовать лёгкий ветерок и теплый солнце жизни.</p>
+        <p class="line-hidden">Здоровье �? это основа всех начинаний, а счастье �? мотивация для движения вперёд. С днем рождения!</p>
+    </div>
+</div>
+
+<!-- 阿拉伯语页面 -->
+<div class="page flex flex-col justify-center items-center text-center p-4 z-10">
+    <div class="language-label">العربية</div>
+    <h1 class="text-[clamp(2.5rem,8vw,5rem)] font-arabic font-bold text-white text-shadow text-glow mb-8 line-hidden" lang="ar">
+        عيد ميلاد سعيد، شا مان!
+    </h1>
+    
+    <div class="text-[clamp(1.2rem,4vw,1.8rem)] font-arabic text-white text-shadow max-w-3xl leading-relaxed space-y-6" lang="ar">
+        <p class="line-hidden">قد يبقى خطواتك في متابعت أحلامك دائمًا ثابتة ومليئة بالقوة.</p>
+        <p class="line-hidden">ستقودك الحماسة والتقانة التي توجد في قلبك أخيرًا إلى حيث تريد أن تذهب.</p>
+        <p class="line-hidden">قد تستطيع في رحلتك لاكتشاف المجهول وتقديم مواهبك التغلب على العوائق والمعاملة بلطف.</p>
+        <p class="line-hidden">أنت تستحق كل الجمال والحظ في العالم.</p>
+        <p class="line-hidden">قد يقرب كل يومك من البلد المثالي الذي في قلبك.</p>
+        <p class="line-hidden">سيترك جهدك ومشاعرك أخيرًا بصمة فريدة ومشرقة في هذا العالم.</p>
+        <p class="line-hidden">الأهم من ذلك، في وسط شغفك، تذكر أن تعتني بكسرك وتوقف أحيانًا ليشعر بضوء الشمس والريح اللطيفة للحياة.</p>
+        <p class="line-hidden">الصحة هي أساس جميع المحاولات، والسعادة هي الدافع للتقدم. عيد ميلاد سعيد!</p>
+    </div>
+</div>
+    
+<!-- 替换原有的音频标签为以下内容 -->
+<audio id="birthdayMusic" loop>
+    <source src="https://www.soundjay.com/misc/sounds/birthday-2.mp3" type="audio/mpeg">
+    <source src="https://www.soundjay.com/misc/sounds/birthday-3.mp3" type="audio/mpeg">
+    <source src="https://assets.mixkit.co/sfx/preview/mixkit-happy-birthday-to-you-449.mp3" type="audio/mpeg">
+</audio>
+    
+    <script>
+        // 当前页面索引
+        let currentPage = 0;
+        const totalPages = 6; // 中文 + 5种语言
+        
+        // 音乐控制
+        const musicControl = document.getElementById('musicControl');
+        const birthdayMusic = document.getElementById('birthdayMusic');
+        let isPlaying = false;
+        
+        // 尝试自动播放音乐（可能需要用户交互）
+        function tryPlayMusic() {
+            birthdayMusic.play().then(() => {
+                isPlaying = true;
+                musicControl.innerHTML = '<i class="fa fa-pause text-2xl"></i>';
+            }).catch(err => {
+                console.log('音乐自动播放失败，需要用户交�?:', err);
+            });
+        }
+        
+        // 点击控制音乐播放/暂停
+        musicControl.addEventListener('click', () => {
+            if (isPlaying) {
+                birthdayMusic.pause();
+                musicControl.innerHTML = '<i class="fa fa-music text-2xl"></i>';
+            } else {
+                birthdayMusic.play();
+                musicControl.innerHTML = '<i class="fa fa-pause text-2xl"></i>';
+            }
+            isPlaying = !isPlaying;
+        });
+        
+        // 监听用户交互，一旦有交互就尝试播放音�?
+        document.addEventListener('click', tryPlayMusic, { once: true });
+        document.addEventListener('touchstart', tryPlayMusic, { once: true });
+        
+        // 页面导航功能
+        function goToPage(pageIndex) {
+            // 隐藏当前页面
+            document.querySelectorAll('.page')[currentPage].classList.remove('active');
+            document.querySelectorAll('.nav-dot')[currentPage].classList.remove('active');
+            
+            // 更新当前页面索引
+            currentPage = pageIndex;
+            
+            // 显示新页�?
+            document.querySelectorAll('.page')[currentPage].classList.add('active');
+            document.querySelectorAll('.nav-dot')[currentPage].classList.add('active');
+            
+            // 触发文字逐行显示动画
+            animateLines(currentPage);
+        }
+        
+        // 下一�?
+        function nextPage() {
+            const nextPageIndex = (currentPage + 1) % totalPages;
+            goToPage(nextPageIndex);
+        }
+        
+        // 上一�?
+        function prevPage() {
+            const prevPageIndex = (currentPage - 1 + totalPages) % totalPages;
+            goToPage(prevPageIndex);
+        }
+        
+        // 为导航点添加点击事件
+        document.querySelectorAll('.nav-dot').forEach(dot => {
+            dot.addEventListener('click', () => {
+                const pageIndex = parseInt(dot.getAttribute('data-page'));
+                goToPage(pageIndex);
+            });
+        });
+        
+        // 为箭头添加点击事�?
+        document.querySelector('.right-arrow').addEventListener('click', nextPage);
+        document.querySelector('.left-arrow').addEventListener('click', prevPage);
+        
+        // 键盘导航
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextPage();
+            } else if (e.key === 'ArrowLeft') {
+                prevPage();
+            }
+        });
+        
+// 文字逐行显示动画
+function animateLines(pageIndex) {
+    const page = document.querySelectorAll('.page')[pageIndex];
+    // 选择页面中的所有需要动画的元素（包括h1标题和所有段落）
+    const elements = page.querySelectorAll('h1, p');
+    
+    // 先重置所有元�?
+    elements.forEach(element => {
+        element.classList.remove('fade-in');
+        element.classList.add('line-hidden');
+    });
+    
+    // 逐个显示元素
+    elements.forEach((element, index) => {
+        setTimeout(() => {
+            element.classList.remove('line-hidden');
+            element.classList.add('fade-in');
+        }, 500 + (index * 400)); // 每个元素间隔400ms
+    });
+}
+        
+        // 背景效果实现（星星和烟花�?
+        const canvas = document.getElementById('backgroundCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 设置画布尺寸为窗口大�?
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // 星星�?
+        class Star {
+            constructor() {
+                this.reset();
+            }
+            
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.radius = Math.random() * 1.5 + 0.3;
+                this.alpha = Math.random() * 0.7 + 0.3;
+                this.twinkleSpeed = Math.random() * 2 + 1;
+            }
+            
+            update() {
+                // 星星闪烁效果
+                this.alpha = 0.3 + Math.sin(Date.now() * 0.001 * this.twinkleSpeed) * 0.4;
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 1)';
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+        
+        // 粒子�?
+        class Particle {
+            constructor(x, y, hue) {
+                this.x = x;
+                this.y = y;
+                this.hue = hue;
+                this.radius = Math.random() * 2 + 1;
+                // 减慢粒子速度
+                this.speedX = Math.random() * 6 - 3;
+                this.speedY = Math.random() * 6 - 3;
+                this.gravity = 0.03; // 减小重力影响
+                this.friction = 0.97; // 增加摩擦，让粒子减速更�?
+                this.alpha = 1;
+            }
+            
+            update() {
+                this.speedX *= this.friction;
+                this.speedY *= this.friction;
+                this.speedY += this.gravity;
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.alpha -= 0.008; // 减慢消失速度
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `hsla(${this.hue}, 100%, 60%, ${this.alpha})`;
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+        
+        // 烟花�?
+        class Firework {
+            constructor() {
+                this.reset();
+            }
+            
+            reset() {
+                // 随机位置
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height;
+                // 减慢烟花上升速度
+                this.speedY = Math.random() * 5 + 5;
+                this.speedX = Math.random() * 2 - 1;
+                this.gravity = 0.07; // 减小重力，让烟花上升更久
+                this.hue = Math.random() * 360;
+                this.exploded = false;
+                this.particles = [];
+                // 随机延迟出现，增加浪漫感
+                this.delay = Math.random() * 5000;
+                this.ready = false;
+                
+                setTimeout(() => {
+                    this.ready = true;
+                }, this.delay);
+            }
+            
+            update() {
+                if (!this.ready) return;
+                
+                if (!this.exploded) {
+                    this.speedY -= this.gravity;
+                    this.y -= this.speedY;
+                    this.x += this.speedX;
+                    
+                    // 当烟花上升速度减慢到一定程度时爆炸（更慢的速度阈值）
+                    if (this.speedY < 1) {
+                        this.explode();
+                        this.exploded = true;
+                    }
+                } else {
+                    // 更新粒子
+                    for (let i = this.particles.length - 1; i >= 0; i--) {
+                        this.particles[i].update();
+                        this.particles[i].draw();
+                        
+                        // 移除已经消失的粒�?
+                        if (this.particles[i].alpha <= 0) {
+                            this.particles.splice(i, 1);
+                        }
+                    }
+                    
+                    // 当所有粒子消失后重置烟花
+                    if (this.particles.length === 0) {
+                        this.reset();
+                    }
+                }
+            }
+            
+            draw() {
+                if (!this.ready) return;
+                
+                if (!this.exploded) {
+                    ctx.save();
+                    ctx.beginPath();
+                    // 绘制拖尾效果
+                    ctx.moveTo(this.x, this.y + this.speedY * 2);
+                    ctx.lineTo(this.x, this.y);
+                    ctx.strokeStyle = `hsla(${this.hue}, 100%, 60%, 0.6)`;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+                    ctx.fillStyle = `hsla(${this.hue}, 100%, 60%, 1)`;
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+            
+            explode() {
+                // 创建更多爆炸粒子，增加浪漫感
+                const particleCount = Math.floor(Math.random() * 120) + 80;
+                for (let i = 0; i < particleCount; i++) {
+                    this.particles.push(new Particle(this.x, this.y, this.hue));
+                }
+            }
+        }
+        
+        // 创建星星
+        const stars = [];
+        const starsCount = 200; // 较多的星星数�?
+        
+        for (let i = 0; i < starsCount; i++) {
+            stars.push(new Star());
+        }
+        
+        // 创建烟花（减少数量以增强浪漫感）
+        const fireworks = [];
+        const fireworksCount = 6;
+        
+        for (let i = 0; i < fireworksCount; i++) {
+            fireworks.push(new Firework());
+        }
+        
+        // 动画循环
+        function animate() {
+            // 深色背景，创造夜空效�?
+            ctx.fillStyle = 'rgba(10, 10, 30, 0.15)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 更新和绘制所有星�?
+            for (let i = 0; i < stars.length; i++) {
+                stars[i].update();
+                stars[i].draw();
+            }
+            
+            // 更新和绘制所有烟�?
+            for (let i = 0; i < fireworks.length; i++) {
+                fireworks[i].update();
+                fireworks[i].draw();
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // 初始化第一页的文字动画
+        window.addEventListener('load', () => {
+            animateLines(0);
+        });
+        
+        // 开始动�?
+        animate();
+    </script>
+
+
+</body></html>
